@@ -1,0 +1,14 @@
+# Install with: pip install -r requirements.txt
+#
+# PyTorch: install separately from https://pytorch.org/get-started/locally/
+# to match your CUDA version, e.g.:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+torch>=2.0.0
+torchvision>=0.15.0
+numpy>=1.23.0
+pyyaml>=6.0
+Pillow>=9.0.0
+einops>=0.6.0
+scikit-learn>=1.2.0   # logistic regression evaluation
+submitit>=1.4.5       # multi-node / SLURM training only
