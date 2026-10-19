@@ -1,9 +1,38 @@
 # S-JEPA
 
-Official PyTorch implementation of **S-JEPA** (Stochastic Joint-Embedding Predictive Architecture), a self supervised learning method that generalizes [I-JEPA](https://arxiv.org/abs/2301.08243) by replacing its deterministic predictor with a stochastic one. Instead of predicting a single point representation for a masked target region, the model predicts a distribution over representations conditioned on a learned latent variable $z$. This lets it capture genuine ambiguity about a masked region, representing several plausible completions rather than being forced to average them into one, while keeping prediction entirely in representation space with no pixel level reconstruction. I-JEPA is trained and evaluated alongside S-JEPA throughout this repository as the baseline, using the exact same encoder, masking, and data pipeline.
+Official PyTorch implementation of **S-JEPA** (Stochastic Joint-Embedding Predictive Architecture), a self-supervised learning method that generalizes [I-JEPA](https://arxiv.org/abs/2301.08243) by introducing stochastic prediction in representation space. Instead of predicting a single point representation for a masked target region, S-JEPA models a **distribution over plausible target representations** conditioned on a learned stochastic latent variable `z`. This allows the model to capture **ambiguity**, produce diverse completions, and estimate predictive uncertainty, without pixel-level reconstruction. I-JEPA is trained and evaluated alongside S-JEPA throughout this repository as the deterministic baseline, using matched encoders, masking strategies, and training schedules.
 
-> **A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures** ([arXiv](https://arxiv.org/abs/XXXX.XXXXX))  
-> Nikos Giakoumoglou, Paschalis Giakoumoglou, Tania Stathaki — WACV 2027
+> **A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures**  
+> Nikos Giakoumoglou, Paschalis Giakoumoglou, Tania Stathaki — **WACV 2027**  
+> [Paper](https://arxiv.org/pdf/XXXX.XXXXX)
+
+---
+
+## Overview
+
+S-JEPA extends the original JEPA framework by replacing the deterministic treatment of the auxiliary variable `z` with a stochastic latent variable. During training, a **target-conditioned posterior** `q` infers `z` from both context and target representations, while a **context-conditioned prior** `p` learns to predict its distribution using only the visible context and is used at inference. Both networks operate entirely in representation space, without an image decoder or reconstruction objective.
+
+<img width="1672" height="941" alt="ijepa_vs_sjepa" src="https://github.com/user-attachments/assets/690c05e3-e073-4dff-acab-373d66506ac0" />
+
+## ImageNet Evaluation
+
+S-JEPA consistently learns stronger representations than I-JEPA under matched architectures and training schedules, without relying on computationally intensive data augmentations. The additional overhead is minimal, requiring only 1.01× the parameters of I-JEPA, with negligible impact on FLOPs and inference latency.
+
+<img width="3417" height="1468" alt="sjepa_evaluations" src="https://github.com/user-attachments/assets/37be2eb4-a413-4b8b-b6be-03c0357ddf2f" />
+
+## Visualizations
+
+### PCA
+
+We visualize the learned patch representations using PCA on ViT-B/16 encoder features. All three methods recover coherent object and background structures, with S-JEPA exhibiting particularly clear object boundaries and spatially consistent representations, suggesting that stochastic prediction preserves and potentially improves the semantic structure of learned features.
+
+<img width="1536" height="993" alt="sjepa_pca" src="https://github.com/user-attachments/assets/6db5a7a0-1e02-4b27-8494-4498273cc286" />
+
+### Predictive Uncertainty
+
+Unlike deterministic I-JEPA, which has zero predictive variance by construction, S-JEPA estimates uncertainty by sampling multiple latent variables from its learned context-conditioned prior and computing the variance of predicted target representations across samples. This produces spatially structured uncertainty maps that correlate with representation-space prediction errors.
+
+<img width="1448" height="783" alt="sjepa_uncertainty" src="https://github.com/user-attachments/assets/f251f811-de57-4d40-a0dc-a63187fa4f6d" />
 
 ---
 
@@ -22,7 +51,7 @@ pip install pyyaml numpy Pillow einops scikit-learn submitit
 
 ### ViT-B/16 — 600 epochs
 
-*Recommended: 16x A100.*
+*Recommended: 16× A100.*
 
 ```bash
 # I-JEPA
@@ -38,7 +67,7 @@ python main.py \
 
 ### ViT-L/16 — 600 epochs
 
-*Recommended: 16x A100.*
+*Recommended: 16× A100.*
 
 ```bash
 # I-JEPA
@@ -52,9 +81,11 @@ python main.py \
   --devices cuda:0 cuda:1 cuda:2 cuda:3
 ```
 
-### ViT-H/14 — 300 epochs (I-JEPA only, `configs/in1k/ijepa_vith14_in1k_ep300.yaml`)
+### ViT-H/14 — 300 epochs
 
-For a cluster with a SLURM + [submitit](https://github.com/facebookincubator/submitit) setup rather than PBS:
+I-JEPA only, using `configs/in1k/ijepa_vith14_in1k_ep300.yaml`.
+
+For a SLURM cluster with [submitit](https://github.com/facebookincubator/submitit):
 
 ```bash
 python main_distributed.py \
@@ -68,15 +99,18 @@ python main_distributed.py \
 ---
 
 ## License
-See the [LICENSE](./LICENSE) file for details about the license under which this code is made available.
+
+See the [LICENSE](./LICENSE) file for details.
 
 ## Citation
-If you find this repository useful in your research, please consider giving a star :star: and a citation:
-```
-@article{giakoumoglou2026sjepa,
+
+If you find this repository useful, please consider giving it a star ⭐ and citing our paper:
+
+```bibtex
+@inproceedings{giakoumoglou2027sjepa,
   title={A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures},
   author={Giakoumoglou, Nikos and Giakoumoglou, Paschalis and Stathaki, Tania},
-  journal={arXiv preprint arXiv:XXXX.XXXXX},
-  year={2026}
+  booktitle={IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+  year={2027}
 }
 ```
