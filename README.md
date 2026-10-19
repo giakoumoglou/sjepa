@@ -13,7 +13,7 @@ Official PyTorch implementation of **S-JEPA** (Stochastic Joint-Embedding Predic
 S-JEPA extends the original JEPA framework by replacing the deterministic treatment of the auxiliary variable `z` with a stochastic latent variable. During training, a **target-conditioned posterior** `q` infers `z` from both context and target representations, while a **context-conditioned prior** `p` learns to predict its distribution using only the visible context and is used at inference. Both networks operate entirely in representation space, without an image decoder or reconstruction objective.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/f3a15da8-d3df-49b4-a243-7e76bdf9f449" alt="I-JEPA vs S-JEPA" width="680">
+  <img src="https://github.com/user-attachments/assets/e0b3a5a6-4055-4c6d-b328-3abf3a0eb7a7" alt="I-JEPA vs S-JEPA" width="680">
 </p>
 
 ## ImageNet Evaluation
@@ -31,7 +31,7 @@ S-JEPA consistently learns stronger representations than I-JEPA under matched ar
 We visualize the learned patch representations using PCA on ViT-B/16 encoder features. All three methods recover coherent object and background structures, with S-JEPA exhibiting particularly clear object boundaries and spatially consistent representations, suggesting that stochastic prediction preserves and potentially improves the semantic structure of learned features.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/528f6094-b6fe-445c-bab5-830d6c89daa2" alt="PCA visualizations" width="650">
+  <img src="https://github.com/user-attachments/assets/24c1afbb-ccd7-47a1-b203-4939e2ffa7ac" alt="PCA visualizations" width="650">
 </p>
 
 ### Predictive Uncertainty
@@ -39,7 +39,7 @@ We visualize the learned patch representations using PCA on ViT-B/16 encoder fea
 Unlike deterministic I-JEPA, which has zero predictive variance by construction, S-JEPA estimates uncertainty by sampling multiple latent variables from its learned context-conditioned prior and computing the variance of predicted target representations across samples. This produces spatially structured uncertainty maps that correlate with representation-space prediction errors.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e70c3af1-7933-42bb-b1a3-1de6f203dd98" alt="Predictive uncertainty" width="650">
+  <img src="https://github.com/user-attachments/assets/10c69e85-0d21-4d47-b17e-adf9e2852c48" alt="Predictive uncertainty" width="650">
 </p>
 
 ## Requirements
