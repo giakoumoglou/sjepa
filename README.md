@@ -39,7 +39,7 @@ We visualize the learned patch representations using PCA on ViT-B/16 encoder fea
 Unlike deterministic I-JEPA, which has zero predictive variance by construction, S-JEPA estimates uncertainty by sampling multiple latent variables from its learned context-conditioned prior and computing the variance of predicted target representations across samples. This produces spatially structured uncertainty maps that correlate with representation-space prediction errors.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e70c3af1-7933-42bb-b1a3-1de6f203dd98" alt="Predictive uncertainty" width="680">
+  <img src="https://github.com/user-attachments/assets/e70c3af1-7933-42bb-b1a3-1de6f203dd98" alt="Predictive uncertainty" width="650">
 </p>
 
 ## Requirements
