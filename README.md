@@ -13,7 +13,7 @@ Official PyTorch implementation of **S-JEPA** (Stochastic Joint-Embedding Predic
 S-JEPA extends the original JEPA framework by replacing the deterministic treatment of the auxiliary variable `z` with a stochastic latent variable. During training, a **target-conditioned posterior** `q` infers `z` from both context and target representations, while a **context-conditioned prior** `p` learns to predict its distribution using only the visible context and is used at inference. Both networks operate entirely in representation space, without an image decoder or reconstruction objective.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e0b3a5a6-4055-4c6d-b328-3abf3a0eb7a7" alt="I-JEPA vs S-JEPA" width="700">
+  <img src="https://github.com/user-attachments/assets/066b0406-7dd7-4710-9173-f1b54074949b" alt="I-JEPA vs S-JEPA" width="700">
 </p>
 
 ## ImageNet Evaluation
