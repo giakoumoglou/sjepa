@@ -369,7 +369,16 @@ def main(args, resume_preempt=False):
         num_epochs=num_epochs,
         ipe_scale=ipe_scale,
         use_bfloat16=use_bfloat16)
-    encoder = DistributedDataParallel(encoder, static_graph=True)
+    # encoder is invoked twice per iteration (once in forward_target, once
+    # in forward_context) when use_ema=False and use_stopgrad=False, since
+    # neither wraps the "target" forward pass in torch.no_grad(). DDP's
+    # static_graph=True assumes a fixed autograd-graph shape across
+    # iterations and hangs on the very first step for this combination
+    # (observed: NCCL collective timeout after 2h, zero training iterations
+    # completed) -- disable it only for this exact flag combination; every
+    # other config keeps the faster static_graph=True path unaffected.
+    encoder_static_graph = use_ema or use_stopgrad
+    encoder = DistributedDataParallel(encoder, static_graph=encoder_static_graph)
     predictor = DistributedDataParallel(predictor, static_graph=True)
     # unwrapped handle for compute_kl_per_dim, which needs direct submodule
     # access (.predictor_embed, .prior, .posterior) that DDP doesn't proxy

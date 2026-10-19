@@ -3,7 +3,7 @@
 Official PyTorch implementation of **S-JEPA** (Stochastic Joint-Embedding Predictive Architecture), a self supervised learning method that generalizes [I-JEPA](https://arxiv.org/abs/2301.08243) by replacing its deterministic predictor with a stochastic one. Instead of predicting a single point representation for a masked target region, the model predicts a distribution over representations conditioned on a learned latent variable $z$. This lets it capture genuine ambiguity about a masked region, representing several plausible completions rather than being forced to average them into one, while keeping prediction entirely in representation space with no pixel level reconstruction. I-JEPA is trained and evaluated alongside S-JEPA throughout this repository as the baseline, using the exact same encoder, masking, and data pipeline.
 
 > **A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures** ([arXiv](https://arxiv.org/abs/XXXX.XXXXX))  
-> Nikos Giakoumoglou, Paschalis Giakoumoglou, Tania Stathaki — WACV 2027 (under review)
+> Nikos Giakoumoglou, Paschalis Giakoumoglou, Tania Stathaki — WACV 2027
 
 ---
 
