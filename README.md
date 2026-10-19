@@ -13,7 +13,7 @@ Official PyTorch implementation of **S-JEPA** (Stochastic Joint-Embedding Predic
 S-JEPA extends the original JEPA framework by replacing the deterministic treatment of the auxiliary variable `z` with a stochastic latent variable. During training, a **target-conditioned posterior** `q` infers `z` from both context and target representations, while a **context-conditioned prior** `p` learns to predict its distribution using only the visible context and is used at inference. Both networks operate entirely in representation space, without an image decoder or reconstruction objective.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e0b3a5a6-4055-4c6d-b328-3abf3a0eb7a7" alt="I-JEPA vs S-JEPA" width="680">
+  <img src="https://github.com/user-attachments/assets/e0b3a5a6-4055-4c6d-b328-3abf3a0eb7a7" alt="I-JEPA vs S-JEPA" width="600">
 </p>
 
 ## ImageNet Evaluation
@@ -21,7 +21,7 @@ S-JEPA extends the original JEPA framework by replacing the deterministic treatm
 S-JEPA consistently learns stronger representations than I-JEPA under matched architectures and training schedules, without relying on computationally intensive data augmentations. The additional overhead is minimal, requiring only 1.01× the parameters of I-JEPA, with negligible impact on FLOPs and inference latency.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/cd66e4cc-9a0b-4eff-bd2b-a924d14f5b54" alt="ImageNet evaluation" width="780">
+  <img src="https://github.com/user-attachments/assets/cd66e4cc-9a0b-4eff-bd2b-a924d14f5b54" alt="ImageNet evaluation" width="600">
 </p>
 
 ## Visualizations
@@ -31,7 +31,7 @@ S-JEPA consistently learns stronger representations than I-JEPA under matched ar
 We visualize the learned patch representations using PCA on ViT-B/16 encoder features. All three methods recover coherent object and background structures, with S-JEPA exhibiting particularly clear object boundaries and spatially consistent representations, suggesting that stochastic prediction preserves and potentially improves the semantic structure of learned features.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/24c1afbb-ccd7-47a1-b203-4939e2ffa7ac" alt="PCA visualizations" width="650">
+  <img src="https://github.com/user-attachments/assets/24c1afbb-ccd7-47a1-b203-4939e2ffa7ac" alt="PCA visualizations" width="600">
 </p>
 
 ### Predictive Uncertainty
@@ -39,7 +39,7 @@ We visualize the learned patch representations using PCA on ViT-B/16 encoder fea
 Unlike deterministic I-JEPA, which has zero predictive variance by construction, S-JEPA estimates uncertainty by sampling multiple latent variables from its learned context-conditioned prior and computing the variance of predicted target representations across samples. This produces spatially structured uncertainty maps that correlate with representation-space prediction errors.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/10c69e85-0d21-4d47-b17e-adf9e2852c48" alt="Predictive uncertainty" width="650">
+  <img src="https://github.com/user-attachments/assets/10c69e85-0d21-4d47-b17e-adf9e2852c48" alt="Predictive uncertainty" width="600">
 </p>
 
 ## Requirements
