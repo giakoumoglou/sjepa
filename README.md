@@ -21,7 +21,7 @@ S-JEPA extends the original JEPA framework by replacing the deterministic treatm
 S-JEPA consistently learns stronger representations than I-JEPA under matched architectures and training schedules, without relying on computationally intensive data augmentations. The additional overhead is minimal, requiring only 1.01× the parameters of I-JEPA, with negligible impact on FLOPs and inference latency.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets//bc7cfb90-f1a8-4975-822d-5c167a0b5012" alt="ImageNet evaluation" width="700">
+  <img src="https://github.com/user-attachments/assets//bc7cfb90-f1a8-4975-822d-5c167a0b5012" alt="ImageNet evaluation" width="850">
 </p>
 
 ## Visualizations
