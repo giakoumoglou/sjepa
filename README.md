@@ -41,6 +41,7 @@ Unlike deterministic I-JEPA, which has zero predictive variance by construction,
 <p align="center">
   <img src="https://github.com/user-attachments/assets/f251f811-de57-4d40-a0dc-a63187fa4f6d" alt="Predictive uncertainty" width="680">
 </p>
+
 ---
 
 ## Requirements
