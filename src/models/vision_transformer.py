@@ -353,7 +353,7 @@ class VisionTransformerPredictor(nn.Module):
 
 class StochasticVisionTransformerPredictor(VisionTransformerPredictor):
     """
-    VA-JEPA predictor: extends VisionTransformerPredictor with a
+    S-JEPA predictor: extends VisionTransformerPredictor with a
     conditional VAE latent variable z.
 
     During training  (targets provided):
