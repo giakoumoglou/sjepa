@@ -80,7 +80,7 @@ def init_model(
     """Instantiate encoder + predictor pair.
 
     Args:
-        stochastic: if True, use the VA-JEPA stochastic predictor (CVA-E latent z).
+        stochastic: if True, use the S-JEPA stochastic predictor (CVAE latent z).
         latent_dim: dimensionality of the latent variable z (stochastic only).
         kl_free_bits: minimum KL per dimension (free bits); 0 disables.
         learn_prior: if False, p(z|context) is fixed N(0,I) instead of learned.
