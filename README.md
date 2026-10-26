@@ -57,45 +57,45 @@ pip install pyyaml numpy Pillow einops scikit-learn submitit
 
 ### ViT-B/16 — 600 epochs
 
-*Recommended: 16× A100.*
+*Recommended: 4× A100.*
 
 ```bash
 # I-JEPA
 python main.py \
-  --fname configs/in1k/ijepa_vitb16_in1k_ep600.yaml \
+  --fname configs/ijepa_vitb16_in1k_ep600.yaml \
   --devices cuda:0 cuda:1 cuda:2 cuda:3
 
 # S-JEPA
 python main.py \
-  --fname configs/in1k/sjepa_vitb16_in1k_ep600.yaml \
+  --fname configs/sjepa_vitb16_in1k_ep600.yaml \
   --devices cuda:0 cuda:1 cuda:2 cuda:3
 ```
 
 ### ViT-L/16 — 600 epochs
 
-*Recommended: 16× A100.*
+*Recommended: 4× A100.*
 
 ```bash
 # I-JEPA
 python main.py \
-  --fname configs/in1k/ijepa_vitl16_in1k_ep600.yaml \
+  --fname configs/ijepa_vitl16_in1k_ep600.yaml \
   --devices cuda:0 cuda:1 cuda:2 cuda:3
 
 # S-JEPA
 python main.py \
-  --fname configs/in1k/sjepa_vitl16_in1k_ep600.yaml \
+  --fname configs/sjepa_vitl16_in1k_ep600.yaml \
   --devices cuda:0 cuda:1 cuda:2 cuda:3
 ```
 
 ### ViT-H/14 — 300 epochs
 
-I-JEPA only, using `configs/in1k/ijepa_vith14_in1k_ep300.yaml`.
+I-JEPA only, using `configs/ijepa_vith14_in1k_ep300.yaml`.
 
 For a SLURM cluster with [submitit](https://github.com/facebookincubator/submitit):
 
 ```bash
 python main_distributed.py \
-  --fname configs/in1k/ijepa_vith14_in1k_ep300.yaml \
+  --fname configs/ijepa_vith14_in1k_ep300.yaml \
   --folder $path_to_save_submitit_logs \
   --partition $slurm_partition \
   --nodes 2 --tasks-per-node 8 \
