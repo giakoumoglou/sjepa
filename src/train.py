@@ -118,7 +118,7 @@ def main(args, resume_preempt=False):
     # -- stochastic predictor
     stochastic = args['meta'].get('stochastic', False)
     latent_dim = args['meta'].get('latent_dim', 128)
-    kl_beta_final = args['meta'].get('kl_beta_final', 0.05)
+    kl_beta_final = args['meta'].get('kl_beta_final', 0.010)
     kl_beta_warmup_frac = args['meta'].get('kl_beta_warmup_frac', 0.3)
     kl_free_bits = float(args['meta'].get('kl_free_bits', 0.0))
     # -- stochastic predictor mechanism-isolation ablations (all default to
