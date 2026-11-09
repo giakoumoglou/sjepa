@@ -4,7 +4,7 @@ Official PyTorch implementation of **S-JEPA** (Stochastic Joint-Embedding Predic
 
 > **A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures**  
 > Nikos Giakoumoglou, Paschalis Giakoumoglou, Tania Stathaki — **WACV 2027**  
-> [Paper](https://arxiv.org/pdf/2611.09302)
+> [Paper](https://arxiv.org/pdf/2611.09302) | [Website](https://giakoumoglou.github.io/sjepa/) | [Code](https://github.com/giakoumoglou/sjepa)
 
 ---
 
