@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S-JEPA: A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures</title>
+<meta name="description" content="S-JEPA realises the auxiliary variable z in Joint-Embedding Predictive Architectures as a proper stochastic latent, yielding predictive uncertainty and diverse completions at no cost to representation quality.">
+
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --ink:#14171f;
+  --ink-soft:#454b57;
+  --ink-faint:#7c8392;
+  --rule:#e3e8f0;
+  --blue:#1d54c7;
+  --blue-deep:#13327a;
+  --blue-soft:#4d7fe0;
+  --blue-wash:#eef3fc;
+  --radius:10px;
+  --maxw:860px;
+  --shadow:0 1px 2px rgba(20,23,31,0.04), 0 10px 26px -16px rgba(20,23,31,0.14);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'STIX Two Text', 'Source Serif 4', Georgia, serif;
+  line-height:1.68;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{ background:var(--blue-wash); color:var(--ink); }
+
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+
+h1,h2,h3{ font-family:'STIX Two Text', Georgia, serif; font-weight:600; color:var(--ink); letter-spacing:-0.005em; }
+p{ color:var(--ink-soft); text-align:justify; hyphens:auto; }
+a{ color:var(--blue); text-decoration:none; }
+a:hover{ text-decoration:underline; }
+.sans{ font-family:'Inter',system-ui,sans-serif; }
+code, .mono{ font-family:'JetBrains Mono', monospace; }
+mjx-container{ color:inherit !important; }
+
+/* ---------- Header / Hero ---------- */
+header.hero{
+  padding:76px 0 36px;
+  text-align:center;
+}
+h1.title{
+  font-size:clamp(21px, 2.7vw, 27px);
+  line-height:1.38;
+  margin:0 auto 26px;
+  max-width:none;
+  font-weight:700;
+}
+h1.title .model-name{ color:var(--blue); }
+
+.authors{ font-family:'Inter',sans-serif; font-size:16px; color:var(--ink); margin-bottom:8px; }
+.authors .you{ color:var(--blue); font-weight:600; }
+.authors sup{ color:var(--blue-soft); font-weight:600; margin-left:1px; font-size:11px; }
+.affils{ font-family:'Inter',sans-serif; font-size:13.5px; color:var(--ink-faint); margin-bottom:30px; }
+.affils sup{ color:var(--blue-soft); margin-right:2px; }
+
+.links-row{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; font-family:'Inter',sans-serif;}
+.pill-link{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:9px 18px;
+  border-radius:999px;
+  border:1px solid var(--rule);
+  background:var(--surface);
+  color:var(--ink);
+  font-size:13.5px; font-weight:500;
+  box-shadow:var(--shadow);
+  transition:transform .15s ease, border-color .15s ease, background .15s ease;
+}
+.pill-link:hover{ transform:translateY(-1px); border-color:var(--blue-soft); background:var(--blue-wash); text-decoration:none; color:var(--blue-deep); }
+.pill-link svg{ width:14.5px; height:14.5px; flex:none; }
+
+/* ---------- Sections ---------- */
+section{ padding:50px 0; border-top:1px solid var(--rule); }
+header.hero + section{ border-top:1px solid var(--rule); }
+.section-label{
+  font-family:'JetBrains Mono', monospace;
+  font-size:11.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--blue); margin:0 0 10px;
+}
+h2.section-title{ font-size:24px; margin:0 0 20px; }
+h3.sub-title{ font-size:16.5px; margin:28px 0 10px; color:var(--ink); }
+.lede{ font-size:16.5px; }
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+
+/* abstract */
+.abstract-card{ padding:26px 30px; }
+.abstract-card p{ margin:0; font-size:16px; text-align:justify; }
+.abstract-card .model-name{ color:var(--blue); font-weight:600; }
+.model-name{ white-space:nowrap; }
+
+/* schematic */
+.schematic-row{ display:flex; gap:20px; align-items:stretch; flex-wrap:wrap; margin-top:30px;}
+.schematic-item{ flex:1 1 260px; text-align:center; }
+.schematic-item img{ width:100%; height:auto; border-radius:8px; border:1px solid var(--rule); background:#fff; padding:16px; }
+.schematic-item .cap{ margin-top:10px; font-size:13px; color:var(--ink-faint); font-family:'Inter',sans-serif; }
+.schematic-arrow{ display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--blue-soft); flex:0 0 auto; padding:0 4px;}
+
+/* motivation cards */
+.motive-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:16px; margin-top:24px; }
+.motive-card{ padding:20px 20px 22px; }
+.motive-card .k{ font-size:11.5px; font-family:'JetBrains Mono',monospace; color:var(--blue-soft); margin-bottom:8px; }
+.motive-card h4{ margin:0 0 8px; font-size:15.5px; font-family:'STIX Two Text',serif; color:var(--ink); }
+.motive-card p{ margin:0; font-size:14px; text-align:left; }
+.ambiguity-example{
+  margin-top:22px; padding:18px 20px;
+  border-left:3px solid var(--blue);
+  background:var(--blue-wash);
+  border-radius:0 8px 8px 0;
+  font-size:14.5px;
+  text-align:left;
+}
+.ambiguity-example b{ color:var(--ink); }
+
+/* method / math */
+.def-block{
+  margin:22px 0; padding:20px 22px;
+  border:1px solid var(--rule); border-radius:8px;
+  background:var(--surface);
+  position:relative;
+}
+.def-block .def-label{
+  position:absolute; top:-11px; left:16px;
+  background:var(--bg);
+  padding:0 8px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
+  color:var(--blue); text-transform:uppercase;
+}
+.def-block mjx-container{ color:var(--ink) !important; max-width:100%; }
+.def-block mjx-container[display="true"]{ overflow-x:auto; overflow-y:hidden; padding:2px 2px 8px; }
+.eq-note{ font-size:13.5px; color:var(--ink-faint); margin-top:10px; text-align:left; font-family:'Inter',sans-serif; }
+
+/* results */
+.results-figure{ margin-top:26px; }
+.results-figure img{ width:100%; border-radius:6px; background:#fff; display:block; }
+.stat-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin:26px 0 6px; font-family:'Inter',sans-serif;}
+.stat{ padding:16px 16px; text-align:left; }
+.stat .num{ font-family:'STIX Two Text',serif; font-size:25px; color:var(--blue); font-weight:700; }
+.stat .lab{ font-size:12.5px; color:var(--ink-faint); margin-top:4px; }
+
+/* figure grids */
+.fig-wrap{ margin-top:26px; }
+.fig-caption{ font-size:13.5px; color:var(--ink-faint); margin-top:14px; line-height:1.55; font-family:'Inter',sans-serif; text-align:left;}
+.fig-caption b{ color:var(--ink-soft); }
+.grid-table{ width:100%; border-collapse:separate; border-spacing:6px; }
+.grid-table th{ font-size:11.5px; font-weight:500; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em; padding:4px; font-family:'Inter',sans-serif;}
+.grid-table td{ padding:0; }
+.grid-table img{ width:100%; display:block; border-radius:6px; cursor:zoom-in; background:#fff; }
+.grid-table img:hover{ outline:2px solid var(--blue-soft); outline-offset:-2px; }
+
+/* uncertainty selector */
+.unc-nav{ display:flex; gap:8px; margin:22px 0 18px; flex-wrap:wrap; justify-content:center; }
+.unc-thumb{
+  width:56px; height:56px; border-radius:7px; overflow:hidden; cursor:pointer;
+  border:2px solid var(--rule); opacity:.55; transition:opacity .15s, border-color .15s;
+}
+.unc-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.unc-thumb.active{ opacity:1; border-color:var(--blue); }
+.unc-display{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+#rcdmDisplay{ grid-template-columns:repeat(7, minmax(90px,1fr)); overflow-x:auto; padding-bottom:6px; }
+.unc-display figure{ margin:0; }
+.unc-display img{ width:100%; border-radius:7px; background:#fff; display:block; cursor:zoom-in; }
+.unc-display img:hover{ outline:2px solid var(--blue-soft); outline-offset:-2px; }
+.unc-display figcaption{ text-align:center; font-size:12px; color:var(--ink-faint); margin-top:6px; font-family:'Inter',sans-serif; line-height:1.5;}
+.unc-display figcaption .cap-main{ display:block; color:var(--ink-soft); font-weight:500; }
+.unc-display figcaption .cap-sub{ display:block; font-size:11px; color:var(--ink-faint); margin-top:1px; }
+
+/* rcdm */
+.rcdm-row{ display:flex; gap:8px; align-items:flex-start; margin-bottom:10px; flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px;}
+.rcdm-row .cell{ flex:1 1 0; min-width:84px; text-align:center;}
+.rcdm-row img{ width:100%; border-radius:6px; cursor:zoom-in; background:#fff; }
+.rcdm-row .lab{ font-size:10.5px; color:var(--ink-faint); margin-top:4px; font-family:'Inter',sans-serif;}
+.rcdm-sep{ flex:0 0 auto; color:var(--blue-soft); font-size:18px; padding:8px 2px 0; }
+
+/* lightbox */
+.lightbox{ position:fixed; inset:0; background:rgba(10,14,25,.9); display:none; align-items:center; justify-content:center; z-index:100; padding:30px; cursor:zoom-out;}
+.lightbox.open{ display:flex; }
+.lightbox img{ max-width:min(92vw,960px); max-height:88vh; border-radius:8px; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+
+/* conclusion limits */
+.limits-list{ margin:18px 0 0; padding-left:0; list-style:none; }
+.limits-list li{ display:flex; gap:12px; margin-bottom:12px; font-size:14.5px; color:var(--ink-soft); text-align:left;}
+.limits-list .tag{ flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--blue); border:1px solid var(--blue-soft); border-radius:5px; padding:2px 7px; height:fit-content; }
+
+/* bibtex */
+.bib-card{ position:relative; margin-top:20px; }
+.bib-card pre{
+  margin:0; padding:24px 26px; overflow-x:auto;
+  font-family:'JetBrains Mono',monospace; font-size:12.8px; line-height:1.7; color:var(--ink-soft);
+}
+.bib-card .copy-btn{
+  position:absolute; top:14px; right:14px;
+  font-family:'Inter',sans-serif; font-size:12.5px; font-weight:500;
+  padding:6px 12px; border-radius:6px; border:1px solid var(--rule);
+  background:#fff; color:var(--ink-soft); cursor:pointer;
+}
+.bib-card .copy-btn:hover{ color:var(--blue); border-color:var(--blue-soft); }
+.bib-card .copy-btn.copied{ color:#1a8a4e; border-color:#1a8a4e; }
+
+.section-nav{
+  position:sticky; top:0; z-index:40;
+  display:flex; gap:4px; overflow-x:auto;
+  padding:12px 24px;
+  background:rgba(255,255,255,0.92);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--rule);
+  scrollbar-width:none;
+}
+.section-nav::-webkit-scrollbar{ display:none; }
+.section-nav a{
+  flex:0 0 auto;
+  font-family:'Inter',sans-serif; font-size:12.5px; font-weight:500;
+  color:var(--ink-faint);
+  padding:6px 13px; border-radius:999px;
+  border:1px solid transparent;
+  white-space:nowrap;
+}
+.section-nav a:hover{ color:var(--blue); text-decoration:none; }
+.section-nav a.active{ color:var(--blue); background:var(--blue-wash); border-color:var(--blue-soft); font-weight:600; }
+
+footer{ padding:44px 0 74px; text-align:center; font-family:'Inter',sans-serif;}
+footer p{ font-size:13px; color:var(--ink-faint); margin:4px 0; }
+footer a{ color:var(--ink-soft); }
+
+@media (max-width:640px){
+  header.hero{ padding:56px 0 30px; }
+  section{ padding:38px 0; }
+  .unc-display{ grid-template-columns:repeat(2,1fr); }
+  #rcdmDisplay{ grid-template-columns:repeat(7, minmax(84px,1fr)); }
+  p{ text-align:left; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1 class="title"><span class="model-name">S-JEPA</span>: A Stochastic Latent Variable Generalization of<br>Joint-Embedding Predictive Architectures</h1>
+
+    <div class="authors">
+      <span class="you">Nikos Giakoumoglou</span><sup>1</sup> &nbsp;&middot;&nbsp;
+      <span>Paschalis Giakoumoglou</span><sup>2</sup> &nbsp;&middot;&nbsp;
+      <span>Tania Stathaki</span><sup>1</sup>
+    </div>
+    <div class="affils">
+      <sup>1</sup>Imperial College London &nbsp;&nbsp; <sup>2</sup>Information Technologies Institute, CERTH
+    </div>
+
+    <div class="links-row">
+      <a class="pill-link" href="https://arxiv.org/abs/2611.09302" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        arXiv
+      </a>
+      <a class="pill-link" href="https://github.com/giakoumoglou/sjepa" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.5 5.74.5 12.03c0 5.03 3.26 9.29 7.79 10.8.57.1.78-.25.78-.55 0-.27-.01-1.17-.02-2.12-3.17.69-3.84-1.35-3.84-1.35-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.25 3.33.95.1-.74.4-1.25.72-1.54-2.53-.29-5.19-1.27-5.19-5.63 0-1.24.44-2.26 1.17-3.06-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.14 1.17a10.8 10.8 0 0 1 5.72 0c2.18-1.48 3.14-1.17 3.14-1.17.62 1.57.23 2.73.11 3.02.73.8 1.17 1.82 1.17 3.06 0 4.37-2.67 5.33-5.21 5.62.41.35.78 1.04.78 2.1 0 1.52-.01 2.74-.01 3.11 0 .3.2.66.79.55A10.53 10.53 0 0 0 23.5 12.03C23.5 5.74 18.27.5 12 .5z"/></svg>
+        Code
+      </a>
+      <a class="pill-link" href="#bibtex">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        BibTeX
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="section-nav" id="sectionNav">
+  <a href="#overview">Overview</a>
+  <a href="#abstract">Abstract</a>
+  <a href="#motivation">Motivation</a>
+  <a href="#method">Method</a>
+  <a href="#results">Results</a>
+  <a href="#conclusion">Conclusion</a>
+  <a href="#bibtex">BibTeX</a>
+</nav>
+
+<main>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="wrap">
+    <p class="section-label">Overview</p>
+    <h2 class="section-title">TL;DR</h2>
+    <p class="lede">S-JEPA replaces the deterministic auxiliary token \(z\) in JEPAs with a proper stochastic latent variable, trained as a CVAE entirely in representation space, with no decoders and no reconstruction. The result: stronger representations than I-JEPA under matched architectures and schedules, plus error-correlated predictive uncertainty and diverse completions, capabilities no deterministic JEPA predictor has.</p>
+  </div>
+</section>
+
+<!-- ABSTRACT -->
+<section id="abstract">
+  <div class="wrap">
+    <p class="section-label">Abstract</p>
+    <div class="card abstract-card">
+      <p>
+      Joint-Embedding Predictive Architectures (JEPAs) predict the latent embedding of a target signal from a context signal, with an auxiliary variable \(z\) conditioning the predictor. Despite its prominent role in the original JEPA blueprint, the content of \(z\) has been carried by a fixed deterministic token in every prior instantiation, collapsing the genuinely multi-modal distribution over plausible completions to a point estimate. We present <span class="model-name">S-JEPA</span>, which realises \(z\) as a proper stochastic latent variable for masked image prediction: a learned posterior infers \(z\) from context and target during training, while a learned context-conditioned prior approximates the distribution of plausible completions at inference, with no decoders and no reconstruction. In its deterministic limit the objective reduces to the I-JEPA loss in functional form, generalising that objective rather than strictly containing the I-JEPA model. Our central finding is that <b style="color:var(--ink)">stochasticity adds capabilities, error-correlated predictive uncertainty and diverse completions, at no cost to representation quality</b>: under matched architectures and schedules S-JEPA improves over the deterministic I-JEPA baseline and exceeds LeJEPA at matched architecture, while additionally producing spatially structured uncertainty maps and semantically diverse completions, neither of which the deterministic predictor produces.
+      </p>
+    </div>
+
+    <div class="schematic-row">
+      <div class="schematic-item">
+        <img src="images/schematic/jepa.png" alt="JEPA schematic: context encoder, target encoder, predictor conditioned on deterministic z">
+        <div class="cap">The JEPA blueprint &mdash; in I-JEPA,<br>\(z\) is a fixed, deterministic token</div>
+      </div>
+      <div class="schematic-arrow">&#8594;</div>
+      <div class="schematic-item">
+        <img src="images/schematic/sjepa.png" alt="S-JEPA schematic: learned posterior and context-conditioned prior over a stochastic latent z">
+        <div class="cap"><span style="color:var(--blue); font-weight:600;">S-JEPA</span> &mdash; in S-JEPA, \(z\) is a stochastic latent<br>variable with a learned prior and posterior</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MOTIVATION -->
+<section id="motivation">
+  <div class="wrap">
+    <p class="section-label">Motivation</p>
+    <h2 class="section-title">Why should prediction be stochastic?</h2>
+    <p class="lede">A JEPA comprises a context encoder \(f_x\), a target encoder \(f_y\), and a predictor \(g\) that estimates \(\hat{s}_y = g(s_x, z)\) from the context representation \(s_x = f_x(x)\) and an auxiliary variable \(z\). In LeCun's original blueprint, \(z\) is meant to carry the residual information the context lacks: scene-level factors, global style, or the semantic content of a masked region. Yet in every instantiation to date, from I-JEPA's shared learnable mask token to V-JEPA's spatiotemporal analogue, \(z\) is deterministic. Stochasticity has only ever entered the <i>positional</i> component (where to mask), never the <i>content</i> of what is masked.</p>
+
+    <div class="ambiguity-example">
+      Given <b>&ldquo;pavement&rdquo;</b>, a <b>&ldquo;parked car&rdquo;</b>, and <b>&ldquo;open sky&rdquo;</b>, the hidden region could equally plausibly contain a <b>fire hydrant</b>, a <b>pedestrian</b>, or a <b>traffic signal</b>. Even with perfect context representations, the distribution over semantically valid completions is genuinely multi-modal. A predictor that collapses this to a point estimate discards the space of plausible completions and gives no signal for where the context under-determines the target.
+    </div>
+
+    <div class="motive-grid">
+      <div class="card motive-card">
+        <div class="k">01</div>
+        <h4>Representation &ne; prediction</h4>
+        <p>Contrastive and self-distillation objectives learn useful embeddings by matching views, but a good embedding does not by itself say what is missing, or what could plausibly come next.</p>
+      </div>
+      <div class="card motive-card">
+        <div class="k">02</div>
+        <h4>Prediction asks a new question</h4>
+        <p>Given what we observe, what other states could be consistent with it? Answering this requires a genuine distribution over completions, not a single point estimate.</p>
+      </div>
+      <div class="card motive-card">
+        <div class="k">03</div>
+        <h4>Toward world models</h4>
+        <p>Inferring missing information under ambiguity is a prerequisite for predicting plausible futures and, eventually, conditioning predictions on actions for planning and control.</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Our approach</h3>
+    <p>We realise \(z\) as a proper stochastic latent variable over the <b style="color:var(--ink-soft)">content</b> of the masked region, replacing the deterministic predictor with one built on a Conditional Variational Autoencoder (CVAE) operating <i>entirely in representation space</i>, i.e., with no pixel decoder and no reconstruction loss. A learned posterior infers \(z\) from context and target during training; a learned context-conditioned prior anticipates plausible completions from context alone and is used at inference.</p>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section id="method">
+  <div class="wrap">
+    <p class="section-label">Method</p>
+    <h2 class="section-title">From a deterministic predictor to a CVAE in representation space</h2>
+
+    <h3 class="sub-title">The I-JEPA objective</h3>
+    <p>A JEPA computes \(s_x = f_x(x)\), \(s_y = f_y(y)\), and \(\hat{s}_y = g(s_x, z)\), and is trained to regress the target representation under a stop-gradient on the (EMA) target encoder:</p>
+    <div class="def-block">
+      <span class="def-label">I-JEPA</span>
+      \[ \mathcal{L}_{\mathrm{JEPA}} = \mathbb{E}\!\left[\, \| g(s_x, z) - \mathrm{sg}(f_y(y)) \|_2^2 \,\right] \]
+      <p class="eq-note">Here \(z\) is a fixed, learnable mask token, i.e., the same value regardless of what the masked region actually contains.</p>
+    </div>
+
+    <h3 class="sub-title">A latent-variable model over target representations</h3>
+    <p>We instead model the conditional distribution \(p(s_y \mid s_x)\) directly. We introduce \(z \in \mathbb{R}^{d_z}\) as a per-image latent variable that accounts for residual uncertainty, i.e., occlusion, texture variability, and semantic ambiguity, giving the joint and marginal:</p>
+    <div class="def-block">
+      <span class="def-label">Generative model</span>
+      \[ p_{\phi,\theta}(s_y, z \mid s_x) = p_\phi(s_y \mid s_x, z)\, p_\theta(z \mid s_x), \qquad
+      p(s_y \mid s_x) = \int p_\phi(s_y \mid s_x, z)\, p_\theta(z \mid s_x)\, dz \]
+      <p class="eq-note">The marginal is intractable for a neural predictor \(g_\phi\), so we maximise a variational lower bound instead of computing it directly.</p>
+    </div>
+
+    <h3 class="sub-title">Context-conditioned prior &amp; approximate posterior</h3>
+    <p>The prior sees the context \(s_x\) only, and must learn to anticipate plausible completions without the target. The posterior additionally sees the target \(s_y\) during training, inferring the \(z\) that best explains it. Both are diagonal Gaussians:</p>
+    <div class="def-block">
+      <span class="def-label">Prior (inference-time)</span>
+      \[ p_\theta(z \mid s_x) = \mathcal{N}\!\big(\mu_\theta(s_x),\, \mathrm{diag}(\sigma_\theta^2(s_x))\big) \]
+    </div>
+    <div class="def-block">
+      <span class="def-label">Posterior (training-time)</span>
+      \[ q_\psi(z \mid s_x, s_y) = \mathcal{N}\!\big(\mu_\psi(s_x, s_y),\, \mathrm{diag}(\sigma_\psi^2(s_x, s_y))\big) \]
+      <p class="eq-note">At inference the target \(s_y\) is unavailable, so \(z\) is drawn from the prior \(p_\theta(z\mid s_x)\). The prior is therefore driven to match the aggregate posterior across the training set.</p>
+    </div>
+
+    <h3 class="sub-title">Evidence lower bound</h3>
+    <p>Introducing the posterior and applying Jensen's inequality to the concave log yields the CVAE ELBO, in representation space:</p>
+    <div class="def-block">
+      <span class="def-label">ELBO</span>
+      \[ \log p(s_y \mid s_x) \;\geq\; \underbrace{\mathbb{E}_{q_\psi}\!\left[\log p_\phi(s_y \mid s_x, z)\right]}_{\text{reconstruction in latent space}} \;-\; \underbrace{\mathrm{KL}\!\left(q_\psi(z\mid s_x,s_y) \,\|\, p_\theta(z \mid s_x)\right)}_{\text{regulariser}} \]
+      <p class="eq-note">Tight iff \(q_\psi\) equals the true posterior \(p(z \mid s_x, s_y)\). The first term drives accurate prediction; the second prevents the posterior from encoding target information inaccessible at inference.</p>
+    </div>
+
+    <h3 class="sub-title">Gaussian likelihood &rArr; squared error</h3>
+    <p>Assuming a fixed-variance isotropic Gaussian likelihood around the predictor's output, the expected log-likelihood reduces in closed form to a scaled MSE:</p>
+    <div class="def-block">
+      <span class="def-label">Likelihood</span>
+      \[ p_\phi(s_y \mid s_x, z) = \mathcal{N}\!\big(s_y;\, g_\phi(s_x, z),\, \sigma^2 \mathbf{I}\big)
+      \;\;\Longrightarrow\;\;
+      -\mathbb{E}_{q_\psi}\!\left[\log p_\phi(s_y \mid s_x, z)\right] = \tfrac{1}{2\sigma^2}\, \mathbb{E}_{q_\psi}\!\left[\| s_y - g_\phi(s_x, z) \|^2\right] + C \]
+      and the KL between the two diagonal Gaussians is closed-form:
+      \[ \mathrm{KL}\big(q_\psi \,\|\, p_\theta\big) = \frac{1}{2}\sum_{k=1}^{d_z}\left( \log\frac{\sigma_{\theta,k}^2}{\sigma_{\psi,k}^2} + \frac{\sigma_{\psi,k}^2 + (\mu_{\psi,k}-\mu_{\theta,k})^2}{\sigma_{\theta,k}^2} - 1 \right) \]
+      <p class="eq-note">Sampling uses the reparameterisation trick: \(z = \mu_\psi + \sigma_\psi \odot \epsilon\), \(\epsilon \sim \mathcal{N}(0, I)\), enabling end-to-end gradient flow through the stochastic node.</p>
+    </div>
+
+    <h3 class="sub-title">The S-JEPA objective</h3>
+    <p>Absorbing the constant \(1/(2\sigma^2)\) into a free hyperparameter \(\beta > 0\) that controls the information bottleneck on \(z\) gives the final training objective:</p>
+    <div class="def-block">
+      <span class="def-label">S-JEPA</span>
+      \[ \mathcal{L}_{\text{total}} \;=\; \underbrace{\mathbb{E}_{q_\psi}\!\left[\| \mathrm{sg}(s_y) - g_\phi(s_x, z) \|^2\right]}_{\mathcal{L}_{\text{pred}}} \;+\; \underbrace{\beta \cdot \mathrm{KL}\!\big(q_\psi(z\mid s_x,s_y) \,\|\, p_\theta(z \mid s_x)\big)}_{\mathcal{L}_{\text{reg}}} \]
+      <p class="eq-note">When \(z\) is collapsed to a deterministic, target-independent code, \(\mathcal{L}_{\text{total}}\) reduces to the I-JEPA loss in <i>functional form</i>, so S-JEPA generalises the objective rather than strictly containing the I-JEPA model, since \(\mu_\psi\) remains target-dependent where the I-JEPA mask token is not.</p>
+    </div>
+
+    <h3 class="sub-title">What this enables at inference</h3>
+    <div class="motive-grid">
+      <div class="card motive-card">
+        <div class="k">representation</div>
+        <h4>Encoder features</h4>
+        <p>Use \(s_x\) directly for downstream tasks, i.e., linear probing and low-shot transfer, exactly as with a deterministic JEPA.</p>
+      </div>
+      <div class="card motive-card">
+        <div class="k">sampling</div>
+        <h4>Alternative completions</h4>
+        <p>Reuse the context features and draw a fresh \(z \sim p_\theta(z\mid s_x)\) to obtain a different, equally plausible target prediction.</p>
+      </div>
+      <div class="card motive-card">
+        <div class="k">calibration</div>
+        <h4>Uncertainty maps</h4>
+        <p>Measure the variance across many sampled target predictions, which is zero by construction for a deterministic predictor but informative here.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="wrap">
+    <p class="section-label">Results</p>
+    <h2 class="section-title">Stronger representations, at matched compute</h2>
+    <p class="lede">Under matched architectures and training schedules, S-JEPA improves over the deterministic I-JEPA baseline on linear evaluation and low-shot ImageNet-1K, and exceeds LeJEPA at matched architecture on a longer schedule, all with only \(1.01\times\) the parameters of I-JEPA and negligible overhead in FLOPs and inference latency.</p>
+
+    <div class="stat-row">
+      <div class="card stat"><div class="num">+0.6&nbsp;/&nbsp;+0.8</div><div class="lab">linear probe points over I-JEPA (ViT-B/16 &amp; ViT-L/16, matched 600ep)</div></div>
+      <div class="card stat"><div class="num">+1.2&nbsp;/&nbsp;+1.4</div><div class="lab">1%-label low-shot points over I-JEPA (ViT-B/16 &amp; ViT-L/16)</div></div>
+      <div class="card stat"><div class="num">1.01&times;</div><div class="lab">parameters of I-JEPA, with negligible FLOPs / latency overhead</div></div>
+    </div>
+
+    <div class="results-figure card" style="padding:18px;">
+      <img src="images/results/imagenet_plots.png" alt="ImageNet-1K linear evaluation and 1% low-shot accuracy versus parameter count, comparing S-JEPA, I-JEPA, LeJEPA, MAE, iBOT, MSN, and data2vec">
+    </div>
+    <p class="fig-caption">S-JEPA (blue) consistently sits above the I-JEPA / LeJEPA frontier (teal) at matched parameter count, on both linear evaluation (left) and 1% low-shot transfer (right) on ImageNet-1K. At ViT-L/16 (600 epochs), S-JEPA reaches <b>78.3%</b> linear top-1, above I-JEPA (77.5%) and data2vec (77.3%, 1600 epochs); at ViT-B/16, S-JEPA reaches <b>73.5%</b>, above I-JEPA (72.9%) and MAE (68.0%, 1600 epochs).</p>
+  </div>
+</section>
+
+<!-- PCA -->
+<section id="pca">
+  <div class="wrap">
+    <p class="section-label">Representation structure</p>
+    <h2 class="section-title">PCA projections of encoder features</h2>
+    <p class="lede">We project block-4 patch representations onto their first three principal components (foreground-masked, mapped to RGB) across three ViT-B/16 encoders trained with different objectives. No localisation signal supervises this map, so the structure emerges purely from the pretraining objective. Select an example:</p>
+
+    <div class="unc-nav" id="pcaNav"></div>
+    <div class="unc-display" id="pcaDisplay"></div>
+
+    <p class="fig-caption">All three methods recover coherent object/background structure, with <b>S-JEPA</b> exhibiting particularly clear object boundaries and spatially consistent representations, suggesting that stochastic prediction preserves, and potentially sharpens, the semantic structure of the learned features.</p>
+  </div>
+</section>
+
+<!-- UNCERTAINTY -->
+<section id="uncertainty">
+  <div class="wrap">
+    <p class="section-label">Predictive uncertainty</p>
+    <h2 class="section-title">Error-correlated uncertainty maps</h2>
+    <p class="lede">For S-JEPA we draw \(N=50\) samples \(z \sim p_\theta(z\mid s_x)\) from the full-image context and compute the predictive variance \(U_p\) across the resulting target predictions. I-JEPA's deterministic predictor gives \(U_p = 0\) everywhere by construction, so its column below carries no information about the image, reflecting only the colour-map normalisation. S-JEPA's uncertainty, by contrast, consistently concentrates on the animal or object rather than the background, and correlates with where its own mean prediction actually errs. Select an example:</p>
+
+    <div class="unc-nav" id="uncNav"></div>
+    <div class="unc-display" id="uncDisplay"></div>
+  </div>
+</section>
+
+<!-- RCDM / DIVERSE COMPLETIONS -->
+<section id="completions">
+  <div class="wrap">
+    <p class="section-label">Diverse completions</p>
+    <h2 class="section-title">Sampling the masked region</h2>
+    <p class="lede">Each example shows a masked input and five completions, each from a distinct draw \(z_i \sim p_\theta(z\mid s_x)\), decoded via a lightweight diffusion decoder (RCDM) trained on frozen S-JEPA predictor representations. Decoding uses a fixed noise seed across all five draws, so the pixel-level variation you see reflects only the sampled latent, not decoder-side stochasticity. Select an example:</p>
+
+    <div class="unc-nav" id="rcdmNav"></div>
+    <div class="unc-display" id="rcdmDisplay"></div>
+
+    <p class="fig-caption">Samples vary in object identity and configuration, reflecting genuine uncertainty over the masked region encoded in \(z\), a capability the deterministic I-JEPA predictor does not have, since it produces exactly one completion per context.</p>
+  </div>
+</section>
+
+<!-- CONCLUSION -->
+<section id="conclusion">
+  <div class="wrap">
+    <p class="section-label">Conclusion</p>
+    <h2 class="section-title">Stochasticity as a free capability</h2>
+    <p>S-JEPA realises the auxiliary variable \(z\) in JEPAs as a stochastic latent over the content of the masked region, with a learned context-conditioned prior and no reconstruction. A CVAE operating purely in representation space replaces I-JEPA's deterministic predictor with a probabilistic model whose objective recovers the I-JEPA loss as a deterministic special case. Under matched architectures and schedules, S-JEPA improves over I-JEPA on linear probing, low-shot, and most transfer tasks, exceeds LeJEPA at matched architecture on a longer schedule, produces error-correlated uncertainty maps at negligible cost, and generates diverse completions.</p>
+
+    <h3 class="sub-title">Limitations</h3>
+    <ul class="limits-list">
+      <li><span class="tag">scope</span><span>\(z\) is a single per-image latent rather than a per-target-region one.</span></li>
+      <li><span class="tag">scale</span><span>Our largest backbone is ViT-L/16; scaling to ViT-H/14 and beyond is untested.</span></li>
+    </ul>
+
+    <h3 class="sub-title">Looking forward</h3>
+    <p>Inferring missing information under ambiguity is a step toward predicting plausible futures with uncertainty, and, eventually, conditioning predictions on actions for planning and control, extending from masked images toward the kind of world model LeCun's original JEPA blueprint set out to motivate.</p>
+  </div>
+</section>
+
+<!-- BIBTEX -->
+<section id="bibtex">
+  <div class="wrap">
+    <p class="section-label">Citation</p>
+    <h2 class="section-title">BibTeX</h2>
+    <div class="card bib-card">
+      <button class="copy-btn" id="copyBibBtn">Copy</button>
+      <pre id="bibtexText">@misc{giakoumoglou2026sjepa,
+      title={{A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures}},
+      author={Nikos Giakoumoglou and Paschalis Giakoumoglou and Tania Stathaki},
+      year={2026},
+      eprint={2611.09302},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2611.09302},
+}</pre>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div style="height:60px"></div>
+
+<div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- section nav active state ---------- */
+  var navLinks = Array.from(document.querySelectorAll('.section-nav a'));
+  var navMap = {};
+  navLinks.forEach(function(a){ navMap[a.getAttribute('href').slice(1)] = a; });
+  var navSections = Object.keys(navMap).map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  if('IntersectionObserver' in window){
+    var navObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          navLinks.forEach(function(a){ a.classList.remove('active'); });
+          var link = navMap[entry.target.id];
+          if(link){
+            link.classList.add('active');
+            link.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+          }
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    navSections.forEach(function(s){ navObserver.observe(s); });
+  }
+
+  /* ---------- lightbox ---------- */
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lightboxImg');
+  function openLightbox(src, alt){ lbImg.src = src; lbImg.alt = alt || ''; lb.classList.add('open'); }
+  lb.addEventListener('click', function(){ lb.classList.remove('open'); lbImg.src=''; });
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if(t.tagName === 'IMG' && t.closest('.unc-display')){
+      openLightbox(t.src, t.alt);
+    }
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ lb.classList.remove('open'); lbImg.src=''; } });
+
+  /* ---------- PCA selector (no attention) ---------- */
+  var pcaNav = document.getElementById('pcaNav');
+  var pcaDisplay = document.getElementById('pcaDisplay');
+  var pcaExamples = [1,2,3,4,5,6];
+  pcaExamples.forEach(function(i, idx){
+    var d = document.createElement('div');
+    d.className = 'unc-thumb' + (idx===0 ? ' active' : '');
+    d.innerHTML = '<img src="images/pca/orig_'+i+'.png" alt="Example '+i+'">';
+    d.addEventListener('click', function(){
+      document.querySelectorAll('#pcaNav .unc-thumb').forEach(function(el){ el.classList.remove('active'); });
+      d.classList.add('active');
+      renderPca(i);
+    });
+    pcaNav.appendChild(d);
+  });
+  function renderPca(i){
+    var items = [
+      ['pca/orig_'+i+'.png', 'Image'],
+      ['pca/mae_'+i+'.png', 'MAE'],
+      ['pca/ijepa_'+i+'.png', 'I-JEPA'],
+      ['pca/sjepa_'+i+'.png', 'S-JEPA']
+    ];
+    pcaDisplay.innerHTML = '';
+    items.forEach(function(it){
+      var fig = document.createElement('figure');
+      var img = document.createElement('img');
+      img.src = 'images/'+it[0]; img.alt = it[1]+' PCA projection'; img.loading = 'lazy';
+      var cap = document.createElement('figcaption');
+      cap.innerHTML = '<span class="cap-main">'+it[1]+'</span>';
+      fig.appendChild(img); fig.appendChild(cap);
+      pcaDisplay.appendChild(fig);
+    });
+  }
+  renderPca(1);
+
+  /* ---------- Uncertainty selector ---------- */
+  var uncNav = document.getElementById('uncNav');
+  var uncDisplay = document.getElementById('uncDisplay');
+  var uncN = 6;
+  for(var i=1;i<=uncN;i++){
+    (function(i){
+      var d = document.createElement('div');
+      d.className = 'unc-thumb' + (i===1 ? ' active' : '');
+      d.innerHTML = '<img src="images/uncertainty/'+i+'/image.png" alt="Example '+i+'">';
+      d.addEventListener('click', function(){
+        document.querySelectorAll('.unc-thumb').forEach(function(el){ el.classList.remove('active'); });
+        d.classList.add('active');
+        renderUnc(i);
+      });
+      uncNav.appendChild(d);
+    })(i);
+  }
+  function renderUnc(i){
+    var items = [
+      ['uncertainty/'+i+'/image.png', 'Image', 'Image', ''],
+      ['uncertainty/'+i+'/ijepa_up.png', 'I-JEPA U_p, zero everywhere', 'I-JEPA \\(U_p\\)', '(= 0 everywhere)'],
+      ['uncertainty/'+i+'/sjepa_up.png', 'S-JEPA U_p, predictive variance', 'S-JEPA \\(U_p\\)', '(predictive variance)'],
+      ['uncertainty/'+i+'/sjepa_error.png', 'S-JEPA error, masked block-wise', 'S-JEPA error', '(masked, block-wise)']
+    ];
+    uncDisplay.innerHTML = '';
+    items.forEach(function(it){
+      var fig = document.createElement('figure');
+      var img = document.createElement('img');
+      img.src = 'images/'+it[0]; img.alt = it[1]; img.loading = 'lazy';
+      var cap = document.createElement('figcaption');
+      var html = '<span class="cap-main">' + it[2] + '</span>';
+      if(it[3]) html += '<span class="cap-sub">' + it[3] + '</span>';
+      cap.innerHTML = html;
+      fig.appendChild(img); fig.appendChild(cap);
+      uncDisplay.appendChild(fig);
+    });
+    if(window.MathJax && window.MathJax.typesetPromise){
+      window.MathJax.typesetPromise([uncDisplay]);
+    }
+  }
+  renderUnc(1);
+
+  /* ---------- RCDM selector ---------- */
+  var rcdmNav = document.getElementById('rcdmNav');
+  var rcdmDisplay = document.getElementById('rcdmDisplay');
+  [1,2,3].forEach(function(i, idx){
+    var d = document.createElement('div');
+    d.className = 'unc-thumb' + (idx===0 ? ' active' : '');
+    d.innerHTML = '<img src="images/rcdm/'+i+'/image.jpg" alt="Example '+i+'">';
+    d.addEventListener('click', function(){
+      document.querySelectorAll('#rcdmNav .unc-thumb').forEach(function(el){ el.classList.remove('active'); });
+      d.classList.add('active');
+      renderRcdm(i);
+    });
+    rcdmNav.appendChild(d);
+  });
+  function renderRcdm(i){
+    var items = [
+      ['rcdm/'+i+'/image.jpg', 'Image'],
+      ['rcdm/'+i+'/context.jpg', 'Context']
+    ];
+    for(var s=1; s<=5; s++){ items.push(['rcdm/'+i+'/sample_'+s+'.png', 'Sample '+s]); }
+    rcdmDisplay.innerHTML = '';
+    items.forEach(function(it){
+      var fig = document.createElement('figure');
+      var img = document.createElement('img');
+      img.src = 'images/'+it[0]; img.alt = it[1]; img.loading = 'lazy';
+      var cap = document.createElement('figcaption');
+      cap.innerHTML = '<span class="cap-main">'+it[1]+'</span>';
+      fig.appendChild(img); fig.appendChild(cap);
+      rcdmDisplay.appendChild(fig);
+    });
+  }
+  renderRcdm(1);
+
+  /* ---------- copy bibtex ---------- */
+  var copyBtn = document.getElementById('copyBibBtn');
+  copyBtn.addEventListener('click', function(){
+    var text = document.getElementById('bibtexText').textContent;
+    function done(){
+      copyBtn.textContent = 'Copied';
+      copyBtn.classList.add('copied');
+      setTimeout(function(){ copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 1600);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(function(){
+        try{ fallbackCopy(text); done(); }catch(e){}
+      });
+    } else {
+      try{ fallbackCopy(text); done(); }catch(e){}
+    }
+    function fallbackCopy(t){
+      var ta = document.createElement('textarea');
+      ta.value = t; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
