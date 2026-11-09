@@ -4,7 +4,7 @@ Official PyTorch implementation of **S-JEPA** (Stochastic Joint-Embedding Predic
 
 > **A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures**  
 > Nikos Giakoumoglou, Paschalis Giakoumoglou, Tania Stathaki — **WACV 2027**  
-> [Paper](https://arxiv.org/pdf/XXXX.XXXXX)
+> [Paper](https://arxiv.org/pdf/2611.09302)
 
 ---
 
@@ -113,10 +113,13 @@ See the [LICENSE](./LICENSE) file for details.
 If you find this repository useful, please consider giving it a star ⭐ and citing our paper:
 
 ```bibtex
-@inproceedings{giakoumoglou2027sjepa,
-  title={A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures},
-  author={Giakoumoglou, Nikos and Giakoumoglou, Paschalis and Stathaki, Tania},
-  booktitle={IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
-  year={2027}
+@misc{giakoumoglou2026sjepa,
+      title={{A Stochastic Latent Variable Generalization of Joint-Embedding Predictive Architectures}}, 
+      author={Nikos Giakoumoglou and Paschalis Giakoumoglou and Tania Stathaki},
+      year={2026},
+      eprint={2611.09302},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2611.09302}, 
 }
 ```
