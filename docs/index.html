@@ -323,13 +323,12 @@ footer a{ color:var(--ink-soft); }
 
     <div class="schematic-row">
       <div class="schematic-item">
-        <img src="images/schematic/jepa.png" alt="JEPA schematic: context encoder, target encoder, predictor conditioned on deterministic z">
-        <div class="cap">The JEPA blueprint &mdash; in I-JEPA,<br>\(z\) is a fixed, deterministic token</div>
+        <img src="assets/schematic/jepa.png" alt="JEPA schematic: context encoder, target encoder, predictor conditioned on deterministic z">
+        <div class="cap">The JEPA blueprint. In I-JEPA,<br>\(z\) is a fixed, deterministic token</div>
       </div>
-      <div class="schematic-arrow">&#8594;</div>
       <div class="schematic-item">
-        <img src="images/schematic/sjepa.png" alt="S-JEPA schematic: learned posterior and context-conditioned prior over a stochastic latent z">
-        <div class="cap"><span style="color:var(--blue); font-weight:600;">S-JEPA</span> &mdash; in S-JEPA, \(z\) is a stochastic latent<br>variable with a learned prior and posterior</div>
+        <img src="assets/schematic/sjepa.png" alt="S-JEPA schematic: learned posterior and context-conditioned prior over a stochastic latent z">
+        <div class="cap">S-JEPA overview. In S-JEPA, \(z\) is a stochastic<br>latent variable with a learned prior and posterior</div>
       </div>
     </div>
   </div>
@@ -467,7 +466,7 @@ footer a{ color:var(--ink-soft); }
     </div>
 
     <div class="results-figure card" style="padding:18px;">
-      <img src="images/results/imagenet_plots.png" alt="ImageNet-1K linear evaluation and 1% low-shot accuracy versus parameter count, comparing S-JEPA, I-JEPA, LeJEPA, MAE, iBOT, MSN, and data2vec">
+      <img src="assets/imagenet_1k.png" alt="ImageNet-1K linear evaluation and 1% low-shot accuracy versus parameter count, comparing S-JEPA, I-JEPA, LeJEPA, MAE, iBOT, MSN, and data2vec">
     </div>
     <p class="fig-caption">S-JEPA (blue) consistently sits above the I-JEPA / LeJEPA frontier (teal) at matched parameter count, on both linear evaluation (left) and 1% low-shot transfer (right) on ImageNet-1K. At ViT-L/16 (600 epochs), S-JEPA reaches <b>78.3%</b> linear top-1, above I-JEPA (77.5%) and data2vec (77.3%, 1600 epochs); at ViT-B/16, S-JEPA reaches <b>73.5%</b>, above I-JEPA (72.9%) and MAE (68.0%, 1600 epochs).</p>
   </div>
@@ -598,11 +597,11 @@ footer a{ color:var(--ink-soft); }
   /* ---------- PCA selector (no attention) ---------- */
   var pcaNav = document.getElementById('pcaNav');
   var pcaDisplay = document.getElementById('pcaDisplay');
-  var pcaExamples = [1,2,3,4,5,6];
+  var pcaExamples = [1,2,3];
   pcaExamples.forEach(function(i, idx){
     var d = document.createElement('div');
     d.className = 'unc-thumb' + (idx===0 ? ' active' : '');
-    d.innerHTML = '<img src="images/pca/orig_'+i+'.png" alt="Example '+i+'">';
+    d.innerHTML = '<img src="assets/pca/'+i+'/image.png" alt="Example '+i+'">';
     d.addEventListener('click', function(){
       document.querySelectorAll('#pcaNav .unc-thumb').forEach(function(el){ el.classList.remove('active'); });
       d.classList.add('active');
@@ -612,16 +611,16 @@ footer a{ color:var(--ink-soft); }
   });
   function renderPca(i){
     var items = [
-      ['pca/orig_'+i+'.png', 'Image'],
-      ['pca/mae_'+i+'.png', 'MAE'],
-      ['pca/ijepa_'+i+'.png', 'I-JEPA'],
-      ['pca/sjepa_'+i+'.png', 'S-JEPA']
+      ['pca/'+i+'/image.png', 'Image'],
+      ['pca/'+i+'/mae.png', 'MAE'],
+      ['pca/'+i+'/ijepa.png', 'I-JEPA'],
+      ['pca/'+i+'/sjepa.png', 'S-JEPA']
     ];
     pcaDisplay.innerHTML = '';
     items.forEach(function(it){
       var fig = document.createElement('figure');
       var img = document.createElement('img');
-      img.src = 'images/'+it[0]; img.alt = it[1]+' PCA projection'; img.loading = 'lazy';
+      img.src = 'assets/'+it[0]; img.alt = it[1]+' PCA projection'; img.loading = 'lazy';
       var cap = document.createElement('figcaption');
       cap.innerHTML = '<span class="cap-main">'+it[1]+'</span>';
       fig.appendChild(img); fig.appendChild(cap);
@@ -638,7 +637,7 @@ footer a{ color:var(--ink-soft); }
     (function(i){
       var d = document.createElement('div');
       d.className = 'unc-thumb' + (i===1 ? ' active' : '');
-      d.innerHTML = '<img src="images/uncertainty/'+i+'/image.png" alt="Example '+i+'">';
+      d.innerHTML = '<img src="assets/uncertainty/'+i+'/image.png" alt="Example '+i+'">';
       d.addEventListener('click', function(){
         document.querySelectorAll('.unc-thumb').forEach(function(el){ el.classList.remove('active'); });
         d.classList.add('active');
@@ -658,7 +657,7 @@ footer a{ color:var(--ink-soft); }
     items.forEach(function(it){
       var fig = document.createElement('figure');
       var img = document.createElement('img');
-      img.src = 'images/'+it[0]; img.alt = it[1]; img.loading = 'lazy';
+      img.src = 'assets/'+it[0]; img.alt = it[1]; img.loading = 'lazy';
       var cap = document.createElement('figcaption');
       var html = '<span class="cap-main">' + it[2] + '</span>';
       if(it[3]) html += '<span class="cap-sub">' + it[3] + '</span>';
@@ -678,7 +677,7 @@ footer a{ color:var(--ink-soft); }
   [1,2,3].forEach(function(i, idx){
     var d = document.createElement('div');
     d.className = 'unc-thumb' + (idx===0 ? ' active' : '');
-    d.innerHTML = '<img src="images/rcdm/'+i+'/image.jpg" alt="Example '+i+'">';
+    d.innerHTML = '<img src="assets/rcdm/'+i+'/image.jpg" alt="Example '+i+'">';
     d.addEventListener('click', function(){
       document.querySelectorAll('#rcdmNav .unc-thumb').forEach(function(el){ el.classList.remove('active'); });
       d.classList.add('active');
@@ -696,7 +695,7 @@ footer a{ color:var(--ink-soft); }
     items.forEach(function(it){
       var fig = document.createElement('figure');
       var img = document.createElement('img');
-      img.src = 'images/'+it[0]; img.alt = it[1]; img.loading = 'lazy';
+      img.src = 'assets/'+it[0]; img.alt = it[1]; img.loading = 'lazy';
       var cap = document.createElement('figcaption');
       cap.innerHTML = '<span class="cap-main">'+it[1]+'</span>';
       fig.appendChild(img); fig.appendChild(cap);
